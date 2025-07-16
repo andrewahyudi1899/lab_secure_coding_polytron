@@ -13,13 +13,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     // VULNERABLE - Plain text password storage simulation
     $users_data = [
-        'admin' => 'admin123',
-        'user1' => 'password123',
-        'user2' => 'mypassword',
-        'john' => 'john2023'
+        'admin' => password_hash('admin123', PASSWORD_DEFAULT),
+        'user1' => password_hash('password123', PASSWORD_DEFAULT),
+        'user2' => password_hash('mypassword', PASSWORD_DEFAULT),
+        'john' => password_hash('john2023', PASSWORD_DEFAULT)
     ];
 
-    if (isset($users_data[$email]) && $users_data[$email] === $password) {
+    if (isset($users_data[$email]) && password_verify($password, $users_data[$email])) {
         $message = "Login successful!";
         $show_data = true;
     } else {

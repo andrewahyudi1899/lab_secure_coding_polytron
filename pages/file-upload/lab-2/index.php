@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['file'])) {
         // Check MIME type (can be spoofed)
         $allowed_mimes = ['image/jpeg', 'image/png', 'image/gif'];
         
-        if (in_array(strtolower($file_extension), $allowed_extensions) || in_array($file['type'], $allowed_mimes)) {
+        if (in_array(strtolower($file_extension), $allowed_extensions) && in_array($file['type'], $allowed_mimes)) {
             $destination = $upload_dir . $filename;
             
             if (move_uploaded_file($file['tmp_name'], $destination)) {

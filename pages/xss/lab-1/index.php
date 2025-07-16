@@ -22,8 +22,8 @@ try {
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $name = $_POST['name'] ?? '';
-    $bio = $_POST['bio'] ?? '';
+    $name = htmlspecialchars($_POST['name'] ?? '', ENT_QUOTES, 'UTF-8');
+    $bio = htmlspecialchars($_POST['bio'] ?? '', ENT_QUOTES, 'UTF-8');
     
     // VULNERABLE CODE - No XSS protection
     $query = "UPDATE user_profiles SET name = ?, bio = ? where user_id = $userID";

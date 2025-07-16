@@ -7,7 +7,7 @@ $output = '';
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $domain = $_POST['domain'] ?? '';
+    $domain = escapeshellarg($_POST['domain'] ?? '');
     
     if ($domain) {
         // VULNERABLE CODE - Command injection vulnerability

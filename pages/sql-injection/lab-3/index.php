@@ -8,17 +8,21 @@ $error_message = '';
 
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
-    
-    // VULNERABLE CODE - URL Parameter SQL Injection
-    $query = "SELECT * FROM user_profiles WHERE id = $id";
-    
-    try {
-        $result = $pdo->query($query);
-        if ($result) {
-            $user_data = $result->fetch(PDO::FETCH_ASSOC);
+
+    if (!preg_match('/^[0-9]+$/', $id)) {
+        $error_message = 'ID is not valid';
+    } else {
+        // VULNERABLE CODE - URL Parameter SQL Injection
+        $query = "SELECT * FROM user_profiles WHERE id = $id";
+        
+        try {
+            $result = $pdo->query($query);
+            if ($result) {
+                $user_data = $result->fetch(PDO::FETCH_ASSOC);
+            }
+        } catch (PDOException $e) {
+            $error_message = "Database error: " . $e->getMessage();
         }
-    } catch (PDOException $e) {
-        $error_message = "Database error: " . $e->getMessage();
     }
 }
 ?>

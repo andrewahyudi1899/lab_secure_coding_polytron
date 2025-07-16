@@ -10,7 +10,9 @@ header("Access-Control-Allow-Headers: Content-Type");
 
 $message = '';
 
-
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
 
 // VULNERABLE CODE - URL Parameter SQL Injection
 $query = "SELECT * FROM users WHERE id = 3";
@@ -28,9 +30,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = $_POST['email'] ?? '';
     $username = $_POST['username'] ?? '';
 
-    $sql =  "UPDATE users SET username = '$username', email = '$email' WHERE id = 3";
-    $pdo->query($sql);
-    $message = "Update profile successful";
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        $message = "CSRF token mismatch, possible CSRF attack";
+    } else {
+        $sql =  "UPDATE users SET username = '$username', email = '$email' WHERE id = 3";
+        $pdo->query($sql);
+        $message = "Update profile successful";
+    }
 }
 ?>
 
@@ -82,6 +88,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                         <label for="email" class="form-label">Email:</label>
                                         <input type="email" class="form-control" id="email" name="email" value="<?php echo htmlspecialchars($user_data['email']); ?>" required>
                                     </div>
+
+                                    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
 
                                     <button type="submit" class="btn btn-primary">Update Profile</button>
                                 </form>

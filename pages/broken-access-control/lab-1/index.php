@@ -9,15 +9,18 @@ $is_login = false;
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = $_POST['email'] ?? '';
     $password = $_POST['password'] ?? '';
-    $role = $_POST['role'] ?? 'user'; // VULNERABLE - Role can be manipulated
+    // $role = $_POST['role'] ?? 'user'; // VULNERABLE - Role can be manipulated
    
     $query = "SELECT * FROM users WHERE email = '$email' AND password = '" . sha1($password) . "'";
     try {
         $result = $pdo->query($query);
+        print_r($result);
         if ($result && $result->rowCount() > 0) {
             $user = $result->fetch(PDO::FETCH_ASSOC);
-             $_SESSION['user_role'] = $role;
-             $is_login = true;
+            $role = $user['role'];
+            $is_admin = $role == 'admin' ? 1 : 0;
+            $_SESSION['user_role'] = $role;
+            $is_login = true;
         } else {
             $message = "Invalid credentials";
         }

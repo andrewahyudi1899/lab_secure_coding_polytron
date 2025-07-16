@@ -14,14 +14,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $start_time = microtime(true);
     
     // VULNERABLE CODE - Blind SQL Injection
-    $query = "SELECT * FROM users WHERE email = '$email' AND password = 'sha1($password)'";
+    $query = "SELECT * FROM users WHERE email = :email AND password = :password";
     
     try {
-        $result = $pdo->query($query);
+        $stmt = $pdo->query($query);
+        $stmt->bindParam(":email", $email);
+        $stmt->bindParam(":password", sha1($password));
+        $stmt->execute();
+
+        $result = $stmt->fetchAll();
+
         $end_time = microtime(true);
         $login_time = number_format(($end_time - $start_time) * 1000, 2);
         
-        if ($result && $result->rowCount() > 0) {
+        if ($result && count($result) > 0) {
             $message = "Login successful!";
             $is_login = true; 
         } else {

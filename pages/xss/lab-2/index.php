@@ -47,7 +47,7 @@ $error_message = $_GET['error'] ?? '';
                                 
                                 <form method="get">
                                     <div class="input-group mb-3">
-                                        <input type="text" class="form-control" name="search" placeholder="Search for users..." value="<?php echo htmlspecialchars($search_term); ?>">
+                                        <input type="text" class="form-control" name="search" placeholder="Search for users..." value="<?php echo htmlspecialchars($search_term, ENT_QUOTES, 'UTF-8'); ?>">
                                         <button class="btn btn-primary" type="submit">Search</button>
                                     </div>
                                 </form>

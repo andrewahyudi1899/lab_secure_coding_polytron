@@ -22,19 +22,26 @@ if (is_dir($upload_dir)) {
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['file'])) {
     $file = $_FILES['file'];
-    
-    // VULNERABLE - No file type validation
-    if ($file['error'] === UPLOAD_ERR_OK) {
-        $filename = $file['name'];
-        $destination = $upload_dir . $filename;
-        
-        if (move_uploaded_file($file['tmp_name'], $destination)) {
-            $message = "File uploaded successfully: " . htmlspecialchars($filename);
-        } else {
-            $message = "Error uploading file.";
-        }
+    $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+
+    $allowedExt = ['jpg', 'jpeg', 'png'];
+
+    if (!in_array($ext, $allowedExt)) {
+        $message = 'File extension not valid';
     } else {
-        $message = "Upload error: " . $file['error'];
+        // VULNERABLE - No file type validation
+        if ($file['error'] === UPLOAD_ERR_OK) {
+            $filename = $file['name'];
+            $destination = $upload_dir . $filename;
+            
+            if (move_uploaded_file($file['tmp_name'], $destination)) {
+                $message = "File uploaded successfully: " . htmlspecialchars($filename) . ' ' . $ext;
+            } else {
+                $message = "Error uploading file.";
+            }
+        } else {
+            $message = "Upload error: " . $file['error'];
+        }
     }
 }
 ?>

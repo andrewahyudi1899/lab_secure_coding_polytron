@@ -5,20 +5,20 @@ if (session_status() == PHP_SESSION_NONE) {
 }
 
 // Database Configuration for docker
-define('DB_HOST', 'secure_coding_polytron');
-define('DB_PORT', '3306');
-define('DB_NAME', 'db_secure_coding_polytron');
-define('DB_USER', 'root');
-define('DB_PASS', 'root');
+// define('DB_HOST', 'secure_coding_polytron');
+// define('DB_PORT', '3306');
+// define('DB_NAME', 'db_secure_coding_polytron');
+// define('DB_USER', 'root');
+// define('DB_PASS', 'root');
 
-#define('DB_HOST', 'localhost');
-#define('DB_PORT', '3306');
-#define('DB_NAME', 'db_secure_coding');
-#define('DB_USER', 'root');
-#define('DB_PASS', 'root');
+define('DB_HOST', 'localhost');
+define('DB_PORT', '3306');
+define('DB_NAME', 'db_secure_coding');
+define('DB_USER', 'root');
+define('DB_PASS', '');
 
 // Base URL Configuration
-define('BASE_URL', 'http://localhost:8000');
+define('BASE_URL', 'http://localhost/training-secure-coding');
 
 define('SITE_NAME', 'Cybersecurity Learning Platform - Polytron');
 
@@ -33,5 +33,5 @@ try {
 } catch(PDOException $e) {
     // In a real application, log this error instead of displaying it
     error_log("Database connection failed: " . $e->getMessage());
-    die("Database connection failed. Please check your configuration.");
+    die("Database connection failed. Please check your configuration. " . $e->getMessage());
 }

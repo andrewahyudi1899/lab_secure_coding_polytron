@@ -17,15 +17,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $query = "SELECT * FROM users WHERE email = '$email' AND password = '" . sha1($password) . "'";
 
     try {
-        $result = $pdo->query($query);
-        if ($result && $result->rowCount() > 0) {
-            $user = $result->fetch(PDO::FETCH_ASSOC);
-            $message = "Login successful! Weak password detected: " . htmlspecialchars($password);
-            $alert_class = "alert-info";
-            $is_login = true;
+        if ($_SESSION['login_attempts'] > 3) {
+            $message = "Attempt login exceed limit";
         } else {
-            $_SESSION['login_attempts'] = ($_SESSION['login_attempts'] ?? 0) + 1;
-            $message = "Invalid credentials. Attempt #" . $_SESSION['login_attempts'];
+            $result = $pdo->query($query);
+            if ($result && $result->rowCount() > 0) {
+                $user = $result->fetch(PDO::FETCH_ASSOC);
+                $message = "Login successful! Weak password detected: " . htmlspecialchars($password);
+                $alert_class = "alert-info";
+                $is_login = true;
+            } else {
+                // $_SESSION['login_attempts'] = ($_SESSION['login_attempts'] ?? 0) + 1;
+                $message = "Invalid credentials. Attempt #" . $_SESSION['login_attempts'];
+            }
         }
     } catch (PDOException $e) {
         $error_message = "Database error: " . $e->getMessage();

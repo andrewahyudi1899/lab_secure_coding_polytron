@@ -11,12 +11,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $password = $_POST['password'] ?? '';
    
     // VULNERABLE CODE - Do not use in production!
-    $query = "SELECT * FROM users WHERE email = '$email' AND password = '" . sha1($password) . "'";
+    $query = "SELECT * FROM users WHERE email = :email AND password = :password";
     
     try {
-        $result = $pdo->query($query);
-        if ($result && $result->rowCount() > 0) {
-            $user = $result->fetch(PDO::FETCH_ASSOC);
+        $stmt = $pdo->prepare($query);
+        $stmt->bindParam(":email", $email);
+        $stmt->bindParam(":password", sha1($password));
+        $stmt->execute();
+
+        $result = $stmt->fetchAll();
+        if ($result && count($result) > 0) {
+            $user = $result;
             $success_message = "Login successful! Welcome, " . $user['email'];
             if ($user['role'] === 'admin') {
                 $success_message .= " (Admin Access Granted)";
