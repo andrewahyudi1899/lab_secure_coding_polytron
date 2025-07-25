@@ -4,19 +4,38 @@ require_once '../../../config/env.php';
 require_once '../../../template/header.php';
 
 $message = '';
+// unset($_SESSION['user_role']);
 $user_role = $_SESSION['user_role'] ?? 'user';
 $is_login = false;
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = $_POST['email'] ?? '';
     $password = $_POST['password'] ?? '';
-    // $role = $_POST['role'] ?? 'user'; // VULNERABLE - Role can be manipulated
+
+    // VULNERABLE - Role can be manipulated
+    // --- ISSUE ---
+    // $role = $_POST['role'] ?? 'user';
    
+    // $query = "SELECT * FROM users WHERE email = '$email' AND password = '" . sha1($password) . "'";
+    // try {
+    //     $result = $pdo->query($query);
+    //     if ($result && $result->rowCount() > 0) {
+    //         $user = $result->fetch(PDO::FETCH_ASSOC);
+    //          $_SESSION['user_role'] = $role;
+    //          $is_login = true;
+    //     } else {
+    //         $message = "Invalid credentials";
+    //     }
+    // } catch (PDOException $e) {
+    //     $error_message = "Database error: " . $e->getMessage();
+    // }
+
+    // --- PATCH ---
     $query = "SELECT * FROM users WHERE email = '$email' AND password = '" . sha1($password) . "'";
     try {
         $result = $pdo->query($query);
-        print_r($result);
         if ($result && $result->rowCount() > 0) {
             $user = $result->fetch(PDO::FETCH_ASSOC);
+
             $role = $user['role'];
             $is_admin = $role == 'admin' ? 1 : 0;
             $_SESSION['user_role'] = $role;

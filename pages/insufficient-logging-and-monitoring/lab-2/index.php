@@ -10,18 +10,45 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $username = $_POST['username'] ?? '';
     
     // VULNERABLE - Critical actions without proper monitoring
+    // --- ISSUE ---
+    // switch ($action) {
+    //     case 'delete_user':
+    //         $message = "User deleted successfully! (No audit log created)";
+    //         break;
+    //     case 'change_password':
+    //         $message = "Password changed successfully! (No security log created)";
+    //         break;
+    //     case 'grant_admin':
+    //         $message = "Admin privileges granted! (No privilege escalation log)";
+    //         break;
+    //     case 'access_sensitive':
+    //         $message = "Sensitive data accessed! (No access log created)";
+    //         break;
+    //     default:
+    //         $message = "Action completed without monitoring.";
+    // }
+
+    // --- PATCH ---
     switch ($action) {
         case 'delete_user':
-            $message = "User deleted successfully! (No audit log created)";
+            $message = "User deleted successfully!";
+
+            error_log("User $username is deleted successfully");
             break;
         case 'change_password':
-            $message = "Password changed successfully! (No security log created)";
+            $message = "Password changed successfully!";
+
+            error_log("Password is changed successfully by user $username");
             break;
         case 'grant_admin':
-            $message = "Admin privileges granted! (No privilege escalation log)";
+            $message = "Admin privileges granted!";
+
+            error_log("Admin privileges granted by user $username");
             break;
         case 'access_sensitive':
-            $message = "Sensitive data accessed! (No access log created)";
+            $message = "Sensitive data accessed!";
+
+            error_log("Sensitive data is accessed by user $username");
             break;
         default:
             $message = "Action completed without monitoring.";

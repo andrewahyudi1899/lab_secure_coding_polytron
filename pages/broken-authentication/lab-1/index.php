@@ -4,7 +4,6 @@ require_once '../../../config/env.php';
 require_once '../../../template/header.php';
 
 $message = '';
-$attempts = $_SESSION['login_attempts'] ?? 0;
 $alert_class = "alert-danger";
 $is_login = false;
 
@@ -12,29 +11,65 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = $_POST['email'] ?? '';
     $password = $_POST['password'] ?? '';
     
-    $_SESSION['login_attempts'] = $attempts + 1;
+    $_SESSION['login_attempts']++;
 
     $query = "SELECT * FROM users WHERE email = '$email' AND password = '" . sha1($password) . "'";
 
     try {
-        if ($_SESSION['login_attempts'] > 3) {
-            $message = "Attempt login exceed limit";
-        } else {
-            $result = $pdo->query($query);
-            if ($result && $result->rowCount() > 0) {
-                $user = $result->fetch(PDO::FETCH_ASSOC);
-                $message = "Login successful! Weak password detected: " . htmlspecialchars($password);
-                $alert_class = "alert-info";
-                $is_login = true;
+        // --- ISSUE ---
+        // $result = $pdo->query($query);
+        // if ($result && $result->rowCount() > 0) {
+        //     $user = $result->fetch(PDO::FETCH_ASSOC);
+        //     $message = "Login successful! Weak password detected: " . htmlspecialchars($password);
+        //     $alert_class = "alert-info";
+        //     $is_login = true;
+        // } else {
+        //     // $_SESSION['login_attempts'] = ($_SESSION['login_attempts'] ?? 0) + 1;
+        //     $message = "Invalid credentials. Attempt #" . $_SESSION['login_attempts'];
+        // }
+
+        // --- PATCH ---
+        $checkLogin = false;
+        $loginCooldown = 60; // COOLDOWN TIME IN SEC
+        if (!empty($_SESSION['cooldown_login'])) {
+            $currentTime = microtime(true);
+            $cooldownDuration = number_format(($currentTime - $_SESSION['cooldown_login']) * 1000, 2); // CONVERT TO SEC
+
+            if ($cooldownDuration < $loginCooldown) {
+                // STILL COOLDOWN
+                $message = 'Login attempt exceed limit, please try again in a moment.';
             } else {
-                // $_SESSION['login_attempts'] = ($_SESSION['login_attempts'] ?? 0) + 1;
-                $message = "Invalid credentials. Attempt #" . $_SESSION['login_attempts'];
+                // COOLDOWN IS OVER
+                unset($_SESSION['cooldown_login']);
+                $_SESSION['login_attempts'] = 1;
+                $checkLogin = true;
+            }
+        } else {
+            $checkLogin = true;
+        }
+
+        if ($checkLogin) {
+            if ($_SESSION['login_attempts'] > 3) {
+                $_SESSION['cooldown_login'] = microtime(true);
+                $message = 'Login attempt exceed limit, please try again in a moment.';
+            } else {
+                $result = $pdo->query($query);
+                if ($result && $result->rowCount() > 0) {
+                    $user = $result->fetch(PDO::FETCH_ASSOC);
+                    $message = "Login successful! Weak password detected: " . htmlspecialchars($password);
+                    $alert_class = "alert-info";
+                    $is_login = true;
+                } else {
+                    // $_SESSION['login_attempts'] = ($_SESSION['login_attempts'] ?? 0) + 1;
+                    $message = "Invalid credentials. Attempt #" . $_SESSION['login_attempts'];
+                }
             }
         }
     } catch (PDOException $e) {
         $error_message = "Database error: " . $e->getMessage();
     }
 }
+$attempts = $_SESSION['login_attempts'] ?? 0;
 ?>
 
 <div class="container-fluid">

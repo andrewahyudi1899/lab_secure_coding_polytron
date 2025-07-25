@@ -12,12 +12,33 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $password = $_POST['password'] ?? '';
     
     $start_time = microtime(true);
-    
+
     // VULNERABLE CODE - Blind SQL Injection
+    // --- ISSUE ---
+    // $query = "SELECT * FROM users WHERE email = '$email' AND password = '" . sha1($password) . "'";
+    
+    // try {
+    //     $result = $pdo->query($query);
+    //     $end_time = microtime(true);
+    //     $login_time = number_format(($end_time - $start_time) * 1000, 2);
+        
+    //     if ($result && $result->rowCount() > 0) {
+    //         $message = "Login successful!";
+    //         $is_login = true; 
+    //     } else {
+    //         $message = "Invalid credentials.";
+    //     }
+    // } catch (PDOException $e) {
+    //     $end_time = microtime(true);
+    //     $login_time = number_format(($end_time - $start_time) * 1000, 2);
+    //     $message = "Login failed. " . $query;
+    // }
+    
+    // --- PATCH ---
     $query = "SELECT * FROM users WHERE email = :email AND password = :password";
     
     try {
-        $stmt = $pdo->query($query);
+        $stmt = $pdo->prepare($query);
         $stmt->bindParam(":email", $email);
         $stmt->bindParam(":password", sha1($password));
         $stmt->execute();
@@ -131,7 +152,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                         </h2>
                                         <div id="boolean" class="accordion-collapse collapse" data-bs-parent="#techniquesAccordion">
                                             <div class="accordion-body">
-                                                <code>admin@example.com' AND (SELECT COUNT(*) FROM users) > 0 --</code>
+                                                <code>admin@example.com' AND (SELECT COUNT(*) FROM users) > 0 -- </code>
                                             </div>
                                         </div>
                                     </div>
@@ -144,10 +165,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                         </h2>
                                         <div id="timing" class="accordion-collapse collapse" data-bs-parent="#techniquesAccordion">
                                             <div class="accordion-body">
-                                                <code>admin@example.com' AND (SELECT SLEEP(5)) --</code>
+                                                <code>admin@example.com' AND (SELECT SLEEP(5)) -- </code>
                                             </div>
                                         </div>
                                     </div>
+                                    (note : for comment SQL need a space on last string)
                                 </div>
                             </div>
                         </div>

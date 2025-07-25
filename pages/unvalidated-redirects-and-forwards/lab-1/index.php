@@ -11,8 +11,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $password = $_POST['password'] ?? '';
     $redirect = $_POST['redirect'] ?? '';
 
-    $key = 'http://localhost/training-secure-coding/';
-    if (strlen($key) != strlen($redirect) || !substr($redirect, 0, strlen($key))) { // !preg_match('#^/[a-zA-Z0-9/_\-]*$#', $next)
+    // --- ISSUE ---
+    // if ($email === 'admin@example.com' && $password === 'admin') {
+    //     // VULNERABLE - Unvalidated redirect
+    //     if ($redirect) {
+    //         header("Location: " . $redirect);
+    //         exit();
+    //     } else {
+    //         $message = "Login successful! No redirect specified.";
+    //     }
+    // } else {
+    //     $message = "Invalid credentials.";
+    // }
+
+    // --- PATCH ---
+    $redirect = htmlspecialchars($redirect);
+    $whitelistURL = 'http://localhost/training-secure-coding/';
+    if (strlen($whitelistURL) != strlen($redirect) || !substr($redirect, 0, strlen($whitelistURL))) { // !preg_match('#^/[a-zA-Z0-9/_\-]*$#', $next)
         $message = "Invalid redirect";
     } else {
         if ($email === 'admin@example.com' && $password === 'admin') {

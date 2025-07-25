@@ -7,22 +7,28 @@ $message = '';
 
 $query = "SELECT * FROM customer_balances WHERE user_id = 2";
 try {
-        $result = $pdo->query($query);
-        if ($result) {
-            $balance = $result->fetch(PDO::FETCH_ASSOC);
+    $result = $pdo->query($query);
+    if ($result) {
+        $balance = $result->fetch(PDO::FETCH_ASSOC);
 
-            if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-                $balanceVal = $balance['balance'] ?? 0;
-                $amount = $balanceVal - $_POST['amount'];
-                if($amount < 1){
-                    $message = "Balance is not enough";
-                } else {
-                    $sql = "UPDATE customer_balances SET balance = $amount WHERE user_id = 2";
-                    $pdo->query($sql);
-                    $message = "Withdrawal successful";
-                }                
-            }
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+            // --- ISSUE ---
+            // $amount = $_POST['balance'] - $_POST['amount'];
+
+            // --- PATCH ---
+            $balanceVal = $balance['balance'] ?? 0;
+            $amount = $balanceVal - $_POST['amount'];
+
+            if($amount < 1){
+                $message = "Balance is not enough";
+            } else {
+                $sql = "UPDATE customer_balances SET balance = $amount WHERE user_id = 2";
+                $pdo->query($sql);
+                $message = "Withdrawal successful";
+            }                
         }
+    }
     } catch (PDOException $e) {
         $error_message = "Database error: " . $e->getMessage();
     }

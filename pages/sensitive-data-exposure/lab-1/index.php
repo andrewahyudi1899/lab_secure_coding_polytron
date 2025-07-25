@@ -12,6 +12,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $password = $_POST['password'] ?? '';
 
     // VULNERABLE - Plain text password storage simulation
+    // --- ISSUE ---
+    // $users_data = [
+    //     'admin' => 'admin123',
+    //     'user1' => 'password123',
+    //     'user2' => 'mypassword',
+    //     'john' => 'john2023'
+    // ];
+
+    // if (isset($users_data[$email]) && $users_data[$email] === $password) {
+    //     $message = "Login successful!";
+    //     $show_data = true;
+    // } else {
+    //     $message = "Invalid credentials.";
+    // }
+
+    // --- PATCH ---
     $users_data = [
         'admin' => password_hash('admin123', PASSWORD_DEFAULT),
         'user1' => password_hash('password123', PASSWORD_DEFAULT),

@@ -3,6 +3,7 @@ $page_title = "Broken Access Control Lab 2 - Horizontal Privilege Escalation";
 require_once '../../../config/env.php';
 require_once '../../../template/header.php';
 
+// --- PATCH ---
 $key = hash('sha256', 'your-secret-key');
 
 function encrypt($plaintext, $key) {
@@ -57,6 +58,28 @@ $current_user = $user_id ?? null;
                                 <h5 class="mb-0">User Profile Viewer</h5>
                             </div>
                             <div class="card-body">
+                                <!-- ISSUE -->
+                                <!-- <p>You are currently viewing identity for User ID: <?php echo htmlspecialchars($user_id); ?></p>
+                                
+                                <?php if ($current_user): ?>
+                                    <div class="alert alert-info" role="alert">
+                                        <h5>KTP:</h5>
+                                        <p><img src="../../../uploads/identity/ktp_user_<?php echo htmlspecialchars($current_user); ?>.jpg" alt=""></p>
+                                    </div>
+                                <?php else: ?>
+                                    <div class="alert alert-danger" role="alert">
+                                        KTP not found.
+                                    </div>
+                                <?php endif; ?>
+                                
+                                <div class="mt-4">
+                                    <h6>Quick Navigation:</h6>
+                                    <a href="?user_id=1" class="btn btn-outline-primary me-2">KTP User 1</a>
+                                    <a href="?user_id=3" class="btn btn-outline-primary me-2">KTP User 2</a>
+                                    <a href="?user_id=5" class="btn btn-outline-primary">KTP User 3</a>
+                                </div> -->
+                                
+                                <!-- PATCH -->
                                 <p>You are currently viewing identity for User ID: <?php echo htmlspecialchars(decrypt($user_id, $key)); ?></p>
                                 
                                 <?php if ($current_user): ?>

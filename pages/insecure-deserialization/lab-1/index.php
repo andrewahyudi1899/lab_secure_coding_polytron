@@ -22,7 +22,33 @@ class User
     {
         // VULNERABLE - Magic method that could be exploited
         if ($this->role === 'admin') {
+            global $message;
             $message = "Admin access granted through deserialization!";
+        }
+    }
+}
+
+// Magic method : 
+// __construct()   : called on object creation
+// __destruct()    : called when an object is destroyed
+// __wakeup()      : called when an object is unserialize
+// __sleep()       : called when an object is serialize
+// __toString()    : called when the object is treated as a string
+class FileDeleter {
+    public $filename;
+
+    public function __construct($filename = '')
+    {
+        $this->filename = $filename;
+    }
+
+    public function __wakeup() {
+        if ($this->filename != '') {
+            global $message;
+
+            $status = unlink($this->filename);
+
+            $message = 'Delete file from ' . $this->filename . ' with status ' . ($status ? 'SUCCESS' : 'FAILED');
         }
     }
 }
@@ -48,9 +74,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
+// SCAN CURRENT DIRECTORY
+// $files_and_directories = scandir('../');
+
+// if ($files_and_directories !== false) {
+//     $message .= 'Contents of the current directory:\n';
+//     foreach ($files_and_directories as $item) {
+//         $message .= $item . '\n';
+//     }
+// } else {
+//     $message .= 'Failed to scan the current directory.\n';
+// }
+
 // Generate sample serialized data
 $sample_user = new User('john', 'user');
 $serialized_sample = serialize($sample_user);
+
+// Generate dangerous serialized data
+$malicious_object = new FileDeleter('../Sampe_Document_For_Insecure_Deserialization.docx');
+$serialized_malicious_object = serialize($malicious_object);
 ?>
 
 <div class="container-fluid">
@@ -103,6 +145,11 @@ $serialized_sample = serialize($sample_user);
                                 <div class="mt-4">
                                     <h6>Sample Serialized User:</h6>
                                     <code><?php echo htmlspecialchars($serialized_sample); ?></code>
+                                </div>
+
+                                <div class="mt-4">
+                                    <h6>Sample Malicious Serialized Object:</h6>
+                                    <code><?php echo htmlspecialchars($serialized_malicious_object); ?></code>
                                 </div>
 
                                 <?php if ($is_admin): ?>

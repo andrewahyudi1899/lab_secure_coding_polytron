@@ -10,11 +10,30 @@ header("Access-Control-Allow-Headers: Content-Type");
 
 $message = '';
 
+// --- PATCH ---
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-// VULNERABLE CODE - URL Parameter SQL Injection
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $email = $_POST['email'] ?? '';
+    $username = $_POST['username'] ?? '';
+
+    // --- ISSUE ---
+    // $sql =  "UPDATE users SET username = '$username', email = '$email' WHERE id = 3";
+    // $pdo->query($sql);
+    // $message = "Update profile successful";
+
+    // --- PATCH ---
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        $message = "CSRF token mismatch, possible CSRF attack";
+    } else {
+        $sql =  "UPDATE users SET username = '$username', email = '$email' WHERE id = 3";
+        $pdo->query($sql);
+        $message = "Update profile successful";
+    }
+}
+
 $query = "SELECT * FROM users WHERE id = 3";
 
 try {
@@ -24,19 +43,6 @@ try {
     }
 } catch (PDOException $e) {
     $error_message = "Database error: " . $e->getMessage();
-}
-
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $email = $_POST['email'] ?? '';
-    $username = $_POST['username'] ?? '';
-
-    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-        $message = "CSRF token mismatch, possible CSRF attack";
-    } else {
-        $sql =  "UPDATE users SET username = '$username', email = '$email' WHERE id = 3";
-        $pdo->query($sql);
-        $message = "Update profile successful";
-    }
 }
 ?>
 
@@ -89,6 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                         <input type="email" class="form-control" id="email" name="email" value="<?php echo htmlspecialchars($user_data['email']); ?>" required>
                                     </div>
 
+                                    <!-- PATCH -->
                                     <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
 
                                     <button type="submit" class="btn btn-primary">Update Profile</button>

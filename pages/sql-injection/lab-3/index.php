@@ -9,22 +9,40 @@ $error_message = '';
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
 
+    // VULNERABLE CODE - URL Parameter SQL Injection
+    // --- ISSUE ---
+    // $query = "SELECT * FROM user_profiles WHERE id = $id";
+    
+    // try {
+    //     $result = $pdo->query($query);
+    //     if ($result) {
+    //         $user_data = $result->fetch(PDO::FETCH_ASSOC);
+    //     }
+    // } catch (PDOException $e) {
+    //     $error_message = "Database error: " . $e->getMessage();
+    // }
+
+    // --- PATCH ---
     if (!preg_match('/^[0-9]+$/', $id)) {
         $error_message = 'ID is not valid';
     } else {
-        // VULNERABLE CODE - URL Parameter SQL Injection
-        $query = "SELECT * FROM user_profiles WHERE id = $id";
+        $query = "SELECT * FROM user_profiles WHERE id = :id";
         
         try {
-            $result = $pdo->query($query);
+            $stmt = $pdo->prepare($query);
+            $stmt->bindParam(":id", $id, PDO::PARAM_INT);
+            $stmt->execute();
+
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
             if ($result) {
-                $user_data = $result->fetch(PDO::FETCH_ASSOC);
+                $user_data = $result;
             }
         } catch (PDOException $e) {
             $error_message = "Database error: " . $e->getMessage();
         }
     }
 }
+
 ?>
 
 <div class="container-fluid">

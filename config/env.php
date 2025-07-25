@@ -13,7 +13,7 @@ if (session_status() == PHP_SESSION_NONE) {
 
 define('DB_HOST', 'localhost');
 define('DB_PORT', '3306');
-define('DB_NAME', 'db_secure_coding');
+define('DB_NAME', 'db_secure_coding_2');
 define('DB_USER', 'root');
 define('DB_PASS', '');
 

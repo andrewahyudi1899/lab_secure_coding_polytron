@@ -23,7 +23,6 @@ if (is_dir($upload_dir)) {
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['file'])) {
     $file = $_FILES['file'];
     
-    // VULNERABLE - Weak file type validation
     if ($file['error'] === UPLOAD_ERR_OK) {
         $filename = $file['name'];
         $file_extension = pathinfo($filename, PATHINFO_EXTENSION);
@@ -32,7 +31,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['file'])) {
         // Check MIME type (can be spoofed)
         $allowed_mimes = ['image/jpeg', 'image/png', 'image/gif'];
         
-        if (in_array(strtolower($file_extension), $allowed_extensions) && in_array($file['type'], $allowed_mimes)) {
+        // VULNERABLE - Weak file type validation
+        // --- ISSUE ---
+        // if (in_array(strtolower($file_extension), $allowed_extensions) || in_array($file['type'], $allowed_mimes)) {
+        //     $destination = $upload_dir . $filename;
+            
+        //     if (move_uploaded_file($file['tmp_name'], $destination)) {
+        //         $message = "File uploaded successfully: " . htmlspecialchars($filename);
+        //     } else {
+        //         $message = "Error uploading file.";
+        //     }
+        // } else {
+        //     $message = "Invalid file type. Only images allowed.";
+        // }
+
+        // --- PATCH ---
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mime = finfo_file($finfo, $file['tmp_name']);
+        // $message = 'mime from header : ' . $file['type'] . ' | magic mime : ' . $mime; // compare mime
+        if (in_array(strtolower($file_extension), $allowed_extensions) && in_array($mime, $allowed_mimes)) {
             $destination = $upload_dir . $filename;
             
             if (move_uploaded_file($file['tmp_name'], $destination)) {

@@ -7,10 +7,14 @@ $output = '';
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // VULNERABLE CODE - Command injection vulnerability
+    // --- ISSUE ---
+    // $domain = $_POST['domain'] ?? '';
+
+    // --- PATCH ---
     $domain = escapeshellarg($_POST['domain'] ?? '');
     
     if ($domain) {
-        // VULNERABLE CODE - Command injection vulnerability
         $output =  system("nslookup $domain");
         if ($output == null): 
             $output = "No output returned. Please check the domain.";
